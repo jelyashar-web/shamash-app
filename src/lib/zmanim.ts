@@ -43,15 +43,25 @@ export interface ZmanimDay {
   };
 }
 
+// המרת Luxon DateTime ל-JS Date
+function toJSDate(luxonDate: any): Date | null {
+  if (!luxonDate) return null;
+  if (luxonDate instanceof Date) return luxonDate;
+  if (luxonDate.toJSDate) return luxonDate.toJSDate();
+  if (luxonDate.ts) return new Date(luxonDate.ts);
+  return null;
+}
+
 /**
- * חישוב זמני היום לבית כנסת - גרסה סינכרונית ללקוח
+ * חישוב זמני היום לבית כנסת
  */
 export function calculateZmanimForDate(
   date: Date = new Date(),
   config: SynagogueConfig = DEFAULT_SYNAGOGUE,
   hebrewDateStr: string = '',
   parasha: string | null = null,
-  holidayName: string | null = null
+  holidayName: string | null = null,
+  isHolidayInput: boolean = false
 ): ZmanimDay {
   const location = new GeoLocation(
     config.name,
@@ -66,7 +76,7 @@ export function calculateZmanimForDate(
   zc.setCandleLightingOffset(config.candleLightingMinutes || 18);
 
   const isShabbat = date.getDay() === 6;
-  const isHoliday = !!holidayName;
+  const isHoliday = isHolidayInput || !!holidayName;
   
   let candleLighting: Date | null = null;
   let havdalah: Date | null = null;
@@ -79,20 +89,20 @@ export function calculateZmanimForDate(
     fridayZc.setDate(friday);
     fridayZc.setCandleLightingOffset(config.candleLightingMinutes || 18);
     
-    candleLighting = fridayZc.getCandleLighting() || null;
+    candleLighting = toJSDate(fridayZc.getCandleLighting());
     
-    const sunset = zc.getSunset();
+    const sunset = toJSDate(zc.getSunset());
     havdalah = sunset ? new Date(sunset.getTime() + 42 * 60 * 1000) : null;
   }
 
-  const sunrise = zc.getSunrise();
+  const sunrise = toJSDate(zc.getSunrise());
   const misheyakir = sunrise ? new Date(sunrise.getTime() - 11 * 60 * 1000) : date;
-  const chatzot = zc.getChatzos();
+  const chatzot = toJSDate(zc.getChatzos());
   const shaahZmanit = sunrise && chatzot ? (chatzot.getTime() - sunrise.getTime()) / 6 : 60 * 60 * 1000;
   const minchaGedola = chatzot ? new Date(chatzot.getTime() + 30 * 60 * 1000) : date;
   const minchaKtana = sunrise ? new Date(sunrise.getTime() + 9.5 * shaahZmanit) : date;
-  const sunsetTime = zc.getSunset();
-  const plagHaMincha = (zc as any).getPlagHamincha?.() || (sunsetTime ? new Date(sunsetTime.getTime() - 1.5 * 60 * 60 * 1000) : date);
+  const sunsetTime = toJSDate(zc.getSunset());
+  const plagHaMincha = (zc as any).getPlagHamincha?.() ? toJSDate((zc as any).getPlagHamincha()) : (sunsetTime ? new Date(sunsetTime.getTime() - 1.5 * 60 * 60 * 1000) : date);
 
   return {
     date,
@@ -104,17 +114,17 @@ export function calculateZmanimForDate(
     candleLighting,
     havdalah,
     times: {
-      alotHaShachar: zc.getAlosHashachar() || date,
+      alotHaShachar: toJSDate(zc.getAlosHashachar()) || date,
       misheyakir,
       sunrise: sunrise || date,
-      sofZmanShma: zc.getSofZmanShmaGRA() || date,
-      sofZmanTfilla: zc.getSofZmanTfilaGRA() || date,
+      sofZmanShma: toJSDate(zc.getSofZmanShmaGRA()) || date,
+      sofZmanTfilla: toJSDate(zc.getSofZmanTfilaGRA()) || date,
       chatzot: chatzot || date,
       minchaGedola,
       minchaKtana,
-      plagHaMincha,
+      plagHaMincha: plagHaMincha || date,
       sunset: sunsetTime || date,
-      tzeitHaKochavim: zc.getTzais() || date,
+      tzeitHaKochavim: toJSDate(zc.getTzais()) || date,
     },
   };
 }
