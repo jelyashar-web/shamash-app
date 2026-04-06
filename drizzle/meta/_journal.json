@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1775442763626,
+      "tag": "0000_worthless_molecule_man",
+      "breakpoints": true
+    }
+  ]
+}

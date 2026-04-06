@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --primary: #0ea5e9;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #0ea5e9;
+}
+
+.dark {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --primary: #0ea5e9;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
+  --accent-foreground: #f8fafc;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #334155;
+  --input: #334155;
+  --ring: #38bdf8;
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  direction: rtl;
+}
+
+html {
+  direction: rtl;
+}
+
+/* Keyframe animations */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes fadeInBackdrop {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-in-right { animation: slideInRight 0.28s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-fade-backdrop  { animation: fadeInBackdrop 0.2s ease-out both; }
+.animate-fade-up        { animation: fadeUp 0.25s ease-out both; }
+.animate-fade-up-1      { animation: fadeUp 0.25s 0.05s ease-out both; }
+.animate-fade-up-2      { animation: fadeUp 0.25s 0.10s ease-out both; }
+.animate-fade-up-3      { animation: fadeUp 0.25s 0.15s ease-out both; }
+.animate-fade-up-4      { animation: fadeUp 0.25s 0.20s ease-out both; }
+
+/* Scroll reveal */
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(32px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(0.5); }
+  70%  { transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.reveal-hidden {
+  opacity: 0;
+  transform: translateY(32px) scale(0.97);
+}
+.reveal-visible {
+  animation: revealUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.pop-hidden  { opacity: 0; transform: scale(0.5); }
+.pop-visible { animation: popIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* Scrollable strip — hide scrollbar */
+.scroll-strip {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-strip::-webkit-scrollbar { display: none; }
+
+/* Category card shine */
+.card-shine {
+  position: relative;
+  overflow: hidden;
+}
+.card-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.18) 50%, transparent 60%);
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.card-shine:hover::after {
+  opacity: 1;
+  animation: shimmer 0.6s ease-out;
+}
+
+/* Animation toggle */
+.no-animations *,
+.no-animations *::before,
+.no-animations *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
