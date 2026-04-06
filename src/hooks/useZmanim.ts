@@ -1,14 +1,38 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import type { ZmanimDay } from '@/lib/zmanim';
+
+// API returns dates as strings (JSON serialization)
+export interface ZmanimDayApi {
+  date: string;
+  hebrewDate: string;
+  parasha: string | null;
+  isShabbat: boolean;
+  isHoliday: boolean;
+  holidayName: string | null;
+  candleLighting: string | null;
+  havdalah: string | null;
+  times: {
+    alotHaShachar: string;
+    misheyakir: string;
+    sunrise: string;
+    sofZmanShma: string;
+    sofZmanTfilla: string;
+    chatzot: string;
+    minchaGedola: string;
+    minchaKtana: string;
+    plagHaMincha: string;
+    sunset: string;
+    tzeitHaKochavim: string;
+  };
+}
 
 interface ZmanimResponse {
-  today?: ZmanimDay;
-  days?: ZmanimDay[];
-  upcomingShabbat?: ZmanimDay;
+  today?: ZmanimDayApi;
+  days?: ZmanimDayApi[];
+  upcomingShabbat?: ZmanimDayApi;
   weeklyParasha?: string | null;
-  upcomingHolidays?: Array<{ date: Date; name: string; type: string }>;
+  upcomingHolidays?: Array<{ date: string; name: string; type: string }>;
 }
 
 interface UseZmanimOptions {

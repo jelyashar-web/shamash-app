@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatTimeShort, type ZmanimDay } from '@/lib/zmanim';
+import { formatTimeShort } from '@/lib/zmanim';
 import { Sunrise, Sunset, Clock, Flame, Moon, Star } from 'lucide-react';
 
+import type { ZmanimDayApi } from '@/hooks/useZmanim';
+
 interface ZmanimCardProps {
-  zmanim?: ZmanimDay;
+  zmanim?: ZmanimDayApi;
   isLoading?: boolean;
 }
 

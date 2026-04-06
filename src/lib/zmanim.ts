@@ -132,8 +132,9 @@ export function calculateZmanimForDate(
 /**
  * פורמט שעה בצורה קצרה
  */
-export function formatTimeShort(date: Date): string {
-  return date.toLocaleTimeString('he-IL', {
+export function formatTimeShort(date: Date | string): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return d.toLocaleTimeString('he-IL', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
@@ -143,10 +144,11 @@ export function formatTimeShort(date: Date): string {
 /**
  * פורמט זמן לתצוגה בעברית
  */
-export function formatTimeHebrew(date: Date): string {
+export function formatTimeHebrew(date: Date | string): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
   return new Intl.DateTimeFormat('he-IL', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
-  }).format(date);
+  }).format(d);
 }
