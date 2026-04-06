@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/navbar';
 import { MemberAvatar } from '@/components/MemberAvatar';
 import { MemberCard } from '@/components/MemberCard';
+import { ZmanimCard } from '@/components/ZmanimCard';
 import { useAuth } from '@/hooks/useAuth';
+import { useTodayZmanim } from '@/hooks/useZmanim';
 import { useInView } from '@/hooks/useInView';
 import { Users, BookOpen, Heart, Calendar, Banknote, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
@@ -120,6 +122,8 @@ export default function DashboardPage() {
   const [stats, setStats]     = useState<Stats | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [cardMemberId, setCardMemberId] = useState<number | null>(null);
+
+  const { data: zmanimData, isLoading: zmanimLoading } = useTodayZmanim();
 
   const fetchAll = useCallback(() => {
     const ctrl = new AbortController();
@@ -321,6 +325,16 @@ export default function DashboardPage() {
             </Reveal>
           </section>
         )}
+
+        {/* ── Zmanim Card ── */}
+        <section>
+          <Reveal>
+            <ZmanimCard 
+              zmanim={zmanimData?.today} 
+              isLoading={zmanimLoading} 
+            />
+          </Reveal>
+        </section>
 
         {/* ── Quick stats row ── */}
         {stats && (
