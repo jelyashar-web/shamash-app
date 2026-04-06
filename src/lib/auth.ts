@@ -20,7 +20,7 @@ export async function verifyAuth(request: NextRequest): Promise<AuthUser | null>
 
   try {
     const verified = await jwtVerify(token, JWT_SECRET);
-    return verified.payload as AuthUser;
+    return verified.payload as unknown as AuthUser;
   } catch {
     return null;
   }

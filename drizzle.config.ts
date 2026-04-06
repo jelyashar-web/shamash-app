@@ -7,8 +7,9 @@ export default defineConfig({
   schema: './src/db/schema.ts',
   out: './drizzle',
   dialect: 'sqlite',
+  // @ts-ignore - older drizzle-kit version
   dbCredentials: {
-    url: process.env.DATABASE_URL || 'file:./shamash.db',
+    url: process.env.DATABASE_URL || 'file:./data/shamash.db',
   },
   verbose: true,
   strict: true,

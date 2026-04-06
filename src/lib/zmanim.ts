@@ -91,6 +91,8 @@ export function calculateZmanimForDate(
   const shaahZmanit = sunrise && chatzot ? (chatzot.getTime() - sunrise.getTime()) / 6 : 60 * 60 * 1000;
   const minchaGedola = chatzot ? new Date(chatzot.getTime() + 30 * 60 * 1000) : date;
   const minchaKtana = sunrise ? new Date(sunrise.getTime() + 9.5 * shaahZmanit) : date;
+  const sunsetTime = zc.getSunset();
+  const plagHaMincha = (zc as any).getPlagHamincha?.() || (sunsetTime ? new Date(sunsetTime.getTime() - 1.5 * 60 * 60 * 1000) : date);
 
   return {
     date,
@@ -110,8 +112,8 @@ export function calculateZmanimForDate(
       chatzot: chatzot || date,
       minchaGedola,
       minchaKtana,
-      plagHaMincha: zc.getPlagHamincha() || date,
-      sunset: zc.getSunset() || date,
+      plagHaMincha,
+      sunset: sunsetTime || date,
       tzeitHaKochavim: zc.getTzais() || date,
     },
   };

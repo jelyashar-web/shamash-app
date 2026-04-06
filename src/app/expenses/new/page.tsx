@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/navbar';
 import { toast } from '@/components/toaster';
-import { EXPENSE_CATEGORIES } from '../page';
+import { EXPENSE_CATEGORIES } from '@/lib/expense-categories';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

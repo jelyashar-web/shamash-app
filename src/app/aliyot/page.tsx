@@ -55,7 +55,7 @@ export default function AliyotPage() {
     finally { setDeleteTarget(null); }
   }, [deleteTarget]);
 
-  const parashaOptions = useMemo(() => [...new Set(aliyot.map((a) => a.parasha).filter(Boolean))], [aliyot]);
+  const parashaOptions = useMemo(() => Array.from(new Set(aliyot.map((a) => a.parasha).filter((p): p is string => !!p))), [aliyot]);
 
   const filtered = useMemo(() => aliyot.filter((a) => {
     if (filterType && a.type !== filterType) return false;

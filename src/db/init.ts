@@ -22,6 +22,7 @@ db.exec(`
     role TEXT NOT NULL DEFAULT 'yisrael' CHECK(role IN ('kohen', 'levi', 'yisrael')),
     yahrzeit_date TEXT,
     notes TEXT,
+    photo TEXT,
     created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
   );
 
@@ -54,6 +55,18 @@ db.exec(`
     created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
   );
 
+  CREATE TABLE IF NOT EXISTS expenses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category TEXT NOT NULL CHECK(category IN ('cantor', 'rabbi', 'food', 'maintenance', 'utilities', 'equipment', 'salary', 'other')),
+    payee TEXT NOT NULL,
+    description TEXT,
+    amount REAL NOT NULL,
+    paid INTEGER NOT NULL DEFAULT 0,
+    date INTEGER NOT NULL,
+    notes TEXT,
+    created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+  );
+
   CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
   CREATE INDEX IF NOT EXISTS idx_members_email ON members(email);
   CREATE INDEX IF NOT EXISTS idx_members_name ON members(name);
@@ -62,6 +75,8 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_donations_member ON donations(member_id);
   CREATE INDEX IF NOT EXISTS idx_donations_date ON donations(date);
   CREATE INDEX IF NOT EXISTS idx_events_date ON events(date);
+  CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(date);
+  CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category);
 `);
 
 console.log('Database tables created successfully!');
