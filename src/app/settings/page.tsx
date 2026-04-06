@@ -103,7 +103,7 @@ export default function SettingsPage() {
   const [mounted, setMounted] = useState(false);
   const [animations, setAnimations] = useState(true);
 
-  const { name: synagogueName, logo, banner, saveName, saveLogo, saveBanner } = useSynagogueSettings();
+  const { appName, name: synagogueName, logo, banner, saveAppName, saveName, saveLogo, saveBanner } = useSynagogueSettings();
 
   const logoRef   = useRef<HTMLInputElement>(null);
   const bannerRef = useRef<HTMLInputElement>(null);
@@ -148,6 +148,27 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">הגדרות</h1>
 
         <div className="space-y-6">
+
+          {/* ── App Settings ── */}
+          <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">הגדרות אפליקציה</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">שם המערכת ולוגו</p>
+
+            {/* App name */}
+            <div className="mb-5">
+              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">
+                שם המערכת
+              </label>
+              <input
+                type="text"
+                value={appName}
+                onChange={(e) => saveAppName(e.target.value)}
+                placeholder="לדוגמה: שמש"
+                className="block w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-white dark:focus:bg-gray-700 transition-colors"
+              />
+              <p className="text-xs text-gray-400 mt-1">השם שיוצג בכותרת ובלוגו למעלה</p>
+            </div>
+          </div>
 
           {/* ── Synagogue Info ── */}
           <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 shadow-sm">

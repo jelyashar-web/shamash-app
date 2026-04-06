@@ -14,12 +14,13 @@ const navigation = [
   { name: 'עליות',       href: '/aliyot',     icon: BookOpen },
   { name: 'תרומות',      href: '/donations',  icon: Heart },
   { name: 'הוצאות',      href: '/expenses',   icon: Banknote },
+  { name: 'אירועים',     href: '/events',     icon: Calendar },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const { logo, name: synagogueName } = useSynagogueSettings();
+  const { appName, logo, name: synagogueName } = useSynagogueSettings();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Close mobile menu on route change
@@ -36,9 +37,13 @@ export function Navbar() {
           <div className="flex">
             <div className="flex flex-shrink-0 items-center">
               <Link href="/dashboard" className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-                  שמש
-                </span>
+                {logo ? (
+                  <img src={logo} alt={appName} className="h-8 w-8 object-contain" />
+                ) : (
+                  <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                    {appName}
+                  </span>
+                )}
               </Link>
             </div>
             <div className="hidden md:mr-6 md:flex md:space-x-8 md:space-x-reverse">

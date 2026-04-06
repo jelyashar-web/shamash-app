@@ -1,67 +1,43 @@
 import { NextRequest } from 'next/server';
-import { db } from '@/db';
-import { events } from '@/db/schema';
-import { eventSchema } from '@/lib/validation';
 import { requireAuth } from '@/lib/auth';
 import { successResponse, errorResponse } from '@/lib/api-response';
-import { eq, gte, desc } from 'drizzle-orm';
+import { db } from '@/db';
+import { events } from '@/db/schema';
+import { desc } from 'drizzle-orm';
 
-// GET /api/events - Get events
-export async function GET(request: NextRequest) {
-  return requireAuth(async (req) => {
-    try {
-      const { searchParams } = new URL(req.url);
-      const upcoming = searchParams.get('upcoming');
+// GET /api/events
+export const GET = requireAuth(async () => {
+  try {
+    const allEvents = await db.query.events.findMany({
+      orderBy: desc(events.date),
+    });
+    return successResponse(allEvents);
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    return errorResponse('שגיאה בטעינת האירועים', 500);
+  }
+});
 
-      let query = db.query.events.findMany({
-        orderBy: desc(events.date),
-      });
+// POST /api/events
+export const POST = requireAuth(async (req: NextRequest) => {
+  try {
+    const body = await req.json();
+    const { title, date, type, description } = body;
 
-      if (upcoming === 'true') {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        query = db.query.events.findMany({
-          where: gte(events.date, today),
-          orderBy: desc(events.date),
-        });
-      }
-
-      const data = await query;
-      return successResponse(data);
-    } catch (error) {
-      console.error('Error fetching events:', error);
-      return errorResponse('שגיאה בטעינת האירועים', 500);
+    if (!title || !date) {
+      return errorResponse('כותרת ותאריך הם שדות חובה', 400);
     }
-  })(request);
-}
 
-// POST /api/events - Create a new event
-export async function POST(request: NextRequest) {
-  return requireAuth(async (req) => {
-    try {
-      const body = await req.json();
-      const result = eventSchema.safeParse(body);
+    const newEvent = await db.insert(events).values({
+      title,
+      date: new Date(date),
+      type: type || 'general',
+      description,
+    }).returning();
 
-      if (!result.success) {
-        const errors = result.error.errors.reduce((acc, error) => {
-          acc[error.path[0]] = error.message;
-          return acc;
-        }, {} as Record<string, string>);
-        return errorResponse('Validation failed', 400);
-      }
-
-      const data = result.data;
-      const newEvent = await db.insert(events).values({
-        title: data.title,
-        date: new Date(data.date),
-        description: data.description || null,
-        type: data.type,
-      }).returning();
-
-      return successResponse(newEvent[0], 'אירוע נוסף בהצלחה');
-    } catch (error) {
-      console.error('Error creating event:', error);
-      return errorResponse('שגיאה ביצירת אירוע', 500);
-    }
-  })(request);
-}
+    return successResponse(newEvent[0], 'האירוע נוצר בהצלחה');
+  } catch (error) {
+    console.error('Error creating event:', error);
+    return errorResponse('שגיאה ביצירת האירוע', 500);
+  }
+});

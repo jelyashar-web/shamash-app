@@ -2,12 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navbar } from '@/components/navbar';
-import { MemberAvatar } from '@/components/MemberAvatar';
-import { MemberCard } from '@/components/MemberCard';
+import { ExpandableMemberCard } from '@/components/ExpandableMemberCard';
 import { toast } from '@/components/toaster';
 import Link from 'next/link';
-import { Plus, Search, Edit, Trash2, Phone, Mail, Calendar } from 'lucide-react';
-import { getHebrewRole, formatPhone, cn } from '@/lib/utils';
+import { Plus, Search } from 'lucide-react';
 
 interface Member {
   id: number; name: string; phone: string | null; email: string | null;
@@ -15,18 +13,11 @@ interface Member {
   notes: string | null; photo: string | null; createdAt: string;
 }
 
-const roleBadge = (role: string) => {
-  if (role === 'kohen') return 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300';
-  if (role === 'levi')  return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-  return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
-};
-
 export default function MembersPage() {
-  const [members, setMembers]     = useState<Member[]>([]);
-  const [loading, setLoading]     = useState(true);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<Member | null>(null);
-  const [cardMemberId, setCardMemberId] = useState<number | null>(null);
 
   const fetchMembers = useCallback(() => {
     const ctrl = new AbortController();
@@ -45,9 +36,14 @@ export default function MembersPage() {
     if (!deleteTarget) return;
     try {
       const res = await fetch(`/api/members/${deleteTarget.id}`, { method: 'DELETE', credentials: 'include' });
-      if (res.ok) { setMembers((prev) => prev.filter((m) => m.id !== deleteTarget.id)); toast('החבר נמחק', 'success'); }
+      if (res.ok) { 
+        setMembers((prev) => prev.filter((m) => m.id !== deleteTarget.id)); 
+        toast('החבר נמחק', 'success'); 
+      }
       else toast('שגיאה במחיקה', 'error');
-    } catch { toast('שגיאה במחיקה', 'error'); }
+    } catch { 
+      toast('שגיאה במחיקה', 'error'); 
+    }
     finally { setDeleteTarget(null); }
   }, [deleteTarget]);
 
@@ -89,121 +85,22 @@ export default function MembersPage() {
           </div>
         ) : (
           <>
-            {/* Mobile cards */}
-            <div className="sm:hidden space-y-3">
+            {/* Expandable Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filtered.map((member) => (
-                <div key={member.id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 transition-shadow hover:shadow-md">
-                  <div className="flex items-start justify-between gap-2">
-                    <button className="flex items-center gap-3 min-w-0 text-right" onClick={() => setCardMemberId(member.id)}>
-                      <MemberAvatar name={member.name} photo={member.photo} size="md" />
-                      <div className="min-w-0">
-                        <p className="font-semibold text-gray-900 dark:text-white truncate hover:text-primary-600 dark:hover:text-primary-400 transition-colors">{member.name}</p>
-                        {member.notes && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{member.notes}</p>}
-                      </div>
-                    </button>
-                    <span className={cn('shrink-0 rounded-full px-2 py-0.5 text-xs font-medium', roleBadge(member.role))}>
-                      {getHebrewRole(member.role)}
-                    </span>
-                  </div>
-                  <div className="mt-3 space-y-1">
-                    {member.phone && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <Phone className="h-3.5 w-3.5 shrink-0" />
-                        <a href={`tel:${member.phone}`} className="hover:underline">{formatPhone(member.phone)}</a>
-                      </div>
-                    )}
-                    {member.email && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <Mail className="h-3.5 w-3.5 shrink-0" /><span className="truncate">{member.email}</span>
-                      </div>
-                    )}
-                    {member.yahrzeitDate && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <Calendar className="h-3.5 w-3.5 shrink-0" /><span>יארצייט: {member.yahrzeitDate}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-3 flex justify-end gap-2 border-t border-gray-100 dark:border-gray-700 pt-3">
-                    <Link href={`/members/${member.id}/edit`} className="flex items-center gap-1 rounded px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900 transition-colors">
-                      <Edit className="h-3.5 w-3.5" /> עריכה
-                    </Link>
-                    <button onClick={() => setDeleteTarget(member)} className="flex items-center gap-1 rounded px-2 py-1 text-xs text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900 transition-colors">
-                      <Trash2 className="h-3.5 w-3.5" /> מחיקה
-                    </button>
-                  </div>
-                </div>
+                <ExpandableMemberCard 
+                  key={member.id} 
+                  member={member} 
+                  onDelete={setDeleteTarget}
+                />
               ))}
-              {filtered.length === 0 && (
-                <p className="text-center py-12 text-gray-500 dark:text-gray-400">
-                  {searchTerm ? 'לא נמצאו חברים' : 'אין חברים במערכת'}
-                </p>
-              )}
             </div>
-
-            {/* Desktop table */}
-            <div className="hidden sm:block overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                      {['שם','תפקיד','פרטי קשר','יארצייט','פעולות'].map((h) => (
-                        <th key={h} className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {filtered.map((member) => (
-                      <tr key={member.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <button className="flex items-center gap-3 text-right" onClick={() => setCardMemberId(member.id)}>
-                            <MemberAvatar name={member.name} photo={member.photo} size="sm" />
-                            <div>
-                              <div className="text-sm font-medium text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors">{member.name}</div>
-                              {member.notes && <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 max-w-[200px] truncate">{member.notes}</div>}
-                            </div>
-                          </button>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={cn('inline-flex rounded-full px-2 py-1 text-xs font-medium', roleBadge(member.role))}>
-                            {getHebrewRole(member.role)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="space-y-1">
-                            {member.phone && (
-                              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                <Phone className="h-4 w-4" />{formatPhone(member.phone)}
-                              </div>
-                            )}
-                            {member.email && (
-                              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                <Mail className="h-4 w-4" />{member.email}
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {member.yahrzeitDate
-                            ? <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"><Calendar className="h-4 w-4" />{member.yahrzeitDate}</div>
-                            : <span className="text-sm text-gray-400">—</span>}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <Link href={`/members/${member.id}/edit`} className="rounded p-1 text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900 transition-colors"><Edit className="h-4 w-4" /></Link>
-                            <button onClick={() => setDeleteTarget(member)} className="rounded p-1 text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900 transition-colors"><Trash2 className="h-4 w-4" /></button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                    {filtered.length === 0 && (
-                      <tr><td colSpan={5} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                        {searchTerm ? 'לא נמצאו חברים התואמים את החיפוש' : 'אין חברים במערכת'}
-                      </td></tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            
+            {filtered.length === 0 && (
+              <p className="text-center py-12 text-gray-500 dark:text-gray-400">
+                {searchTerm ? 'לא נמצאו חברים' : 'אין חברים במערכת'}
+              </p>
+            )}
           </>
         )}
 
@@ -221,8 +118,6 @@ export default function MembersPage() {
           </div>
         )}
       </main>
-
-      {cardMemberId && <MemberCard memberId={cardMemberId} onClose={() => setCardMemberId(null)} />}
     </div>
   );
 }
